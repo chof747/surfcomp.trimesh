@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+	<target name="javadoc">
+		<javadoc access="protected" 
+			     author="true" 
+			     classpath="jar/jgrapht-jdk1.6.jar:/Applications/eclipse 4.3/plugins/org.hamcrest.core_1.3.0.v201303031735.jar:/Applications/eclipse 4.3/plugins/org.junit_4.11.0.v201303080030/junit.jar:jar/vecmath.jar" destdir="doc" doctitle="Surfcomp 2.0 - Triangular Mesh Library" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.6" sourcefiles="src/main/org/chof/surfcomp/trimesh/domain/Point.java,src/main/org/chof/surfcomp/trimesh/domain/Mesh.java,src/main/org/chof/surfcomp/trimesh/domain/Triangle.java" 
+			     sourcepath="src/test:src/main" 
+			     splitindex="true" 
+				 use="true" 
+			     version="true" />
+	</target>
+	<target name="clean">
+		<delete dir="doc"></delete>
+	</target>
+</project>
