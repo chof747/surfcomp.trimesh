@@ -4,6 +4,7 @@ import java.util.Vector;
 
 import org.chof.surfcomp.trimesh.exception.FailedPointAddition;
 import org.chof.surfcomp.trimesh.exception.TrianglePointMissing;
+import org.chof.surfcomp.trimesh.interfaces.IPropertyContainer;
 import org.jgrapht.graph.DefaultDirectedWeightedGraph;
 
 public class Mesh {
@@ -21,6 +22,9 @@ public class Mesh {
 	protected Vector<Point> points;
 	protected Vector<Triangle> triangles;
 	
+	/**
+	 * Standard Constructor creating an empty triangular mesh
+	 */
 	public Mesh() {
 		intialize();
 	}
@@ -35,14 +39,30 @@ public class Mesh {
 	//Getters
 	//**************************************************************************
 
+	/**
+	 * @param index of the requested point in the mesh
+	 * @return Point the point at the given index or null if no point is stored 
+	 *         for the index
+	 */
 	public Point getPoint(int index) {
 		return points.get(index);
 	}
 	
+	/**
+	 * @param index of the requested triangle in the mesh
+	 * @return Triangle the requested triangle at the given index or null if no 
+	 *         triangle is stored for the index
+	 */
 	public Triangle getTriangle(int index) {
 		return triangles.get(index);
 	}
 	
+	/**
+	 * Retrieves an edge between two points by index of the points
+	 * @param start the index of the source point
+	 * @param end the index of the target point
+	 * @return MeshEdge the edge between the points or null if they are not connected
+	 */
 	public MeshEdge getEdge(int start, int end) {
 		Point source = points.get(start);
 		Point target = points.get(end);
@@ -54,8 +74,59 @@ public class Mesh {
 		}
 	}
 	
+	/**
+	 * Retrieves an edge between two points by references of the points
+	 * @param source the the source point
+	 * @param target the the target point
+	 * @return MeshEdge the edge between the points or null if they are not connected
+	 */
 	public MeshEdge getEdge(Point source, Point target) {
 		return mesh.getEdge(source, target);
+	}
+	
+	/**
+	 * Retrieves a vector containing the values of a specific property for all points
+	 * <p>
+	 * The property is determined by the parameter \c description and the type of the
+	 * resulting vector is determined by the class denoted by \c type.</p>
+	 * <p>
+	 * The vector will contain an entry for all points, nevertheless if a property is
+	 * set for that point or not and the properties will be provided by the same
+	 * indices as the points. If a point does not contain a property with the given 
+	 * description, it will be set to the value denoted by the parameter \c defaultValue
+	 * 
+	 * @param description the description of the property (e.g. it's name)
+	 * @param defaultValue a default value of type T assigned to all points which do not 
+	 *        have the property set
+	 * @return a vector of type T with a value for each point
+	 */
+	public <T> Vector<T> getPointPropertyVector(Object description, T defaultValue) {
+		return getPropertyVector(points, description, defaultValue);
+	}
+
+	/**
+	 * Retrieves a vector containing the values of a specific property for all triangles
+	 * @see #getPointPropertyVector(Object, Object)
+	 */
+	public <T> Vector<T> getTrianglePropertyVector(Object description, T defaultValue) {
+		return getPropertyVector(triangles, description, defaultValue);	
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Vector<T> getPropertyVector(
+			Vector<? extends IPropertyContainer> data, Object description,
+			T defaultValue) {
+		Vector<T> propertyVector = new Vector<T>(data.size());
+
+		for (IPropertyContainer p : data) {
+			T value = (T) p.getProperty(description, defaultValue.getClass());
+			if (value == null) {
+				value = defaultValue;
+			}
+			propertyVector.add(value);
+		}
+
+		return propertyVector;
 	}
 	
 	/**

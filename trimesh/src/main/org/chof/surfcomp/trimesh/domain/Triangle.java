@@ -14,7 +14,7 @@ import javax.vecmath.Vector3d;
  * 
  * @author chof
  */
-public class Triangle {
+public class Triangle extends SimpleSurfaceElement {
 	
 	public enum Corner {
 		A(),

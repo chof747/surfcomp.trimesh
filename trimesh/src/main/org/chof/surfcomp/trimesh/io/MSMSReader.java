@@ -8,8 +8,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
@@ -30,7 +28,6 @@ import org.chof.surfcomp.trimesh.io.formats.MSMSFormat;
 public class MSMSReader extends SimpleSurfaceReader {
 	
 	private Mesh mesh;
-	private String line;
 
 	/**
 	 * Default constructor
@@ -79,68 +76,91 @@ public class MSMSReader extends SimpleSurfaceReader {
 	}
 
 	@Override
-	public <M extends Mesh> M read(M object) throws TrimeshException {
-		mesh = null;
+	public boolean accepts(Class<? extends Mesh> classObject) {
+		return (Mesh.class.equals(classObject)); 
+	}
+
+	@Override
+	public IResourceFormat getFormat() {
+		return MSMSFormat.getInstance();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <M extends Mesh> M read(M instance) throws TrimeshException {
 		try {
-			mesh = object.getClass().newInstance();
-			try {
-				Scanner scanner;
-				
-				skipComments();
+			mesh = instance;
+			
+			Scanner scanner;
+			String line;
+			
+			line = readWithoutComments();
 
-				int nvertices, nfaces, nspheres;
-				double density, probeRadius;
-				
-				//read vertex numbers ...
-				scanner = new Scanner(line);
-				scanner.useLocale(Locale.ROOT);
+			int nvertices, nfaces, nspheres;
+			double density, probeRadius;
+			
+			//read vertex numbers ...
+			scanner = new Scanner(line);
+			scanner.useLocale(Locale.ROOT);
 
-				nvertices = scanner.nextInt();
-				nspheres = scanner.nextInt();
-				density = scanner.nextDouble();
-				probeRadius = scanner.nextDouble();
-				
-				readVertices(nvertices);
-				
-				skipComments();
-				
-				//read face numbers
-				scanner = new Scanner(line);
-				scanner.useLocale(Locale.ROOT);
+			nvertices = scanner.nextInt();
+			nspheres = scanner.nextInt();
+			density = scanner.nextDouble();
+			probeRadius = scanner.nextDouble();
+			
+			readVertices(nvertices);
+			
+			line = readWithoutComments();
+			
+			//read face numbers
+			scanner = new Scanner(line);
+			scanner.useLocale(Locale.ROOT);
 
-				nfaces = scanner.nextInt();
-				if ((scanner.nextInt() != nspheres) ||
-				    (density != scanner.nextDouble()) ||
-				    (probeRadius != scanner.nextDouble())) {
-					throw new IOException("face and vertices part is not related!");
-				}
-				
-				readFaces(nfaces);
-				
-			} catch (IOException e) {
-				throw new TrimeshException("Error reading input for surface", e);
+			nfaces = scanner.nextInt();
+			if ((scanner.nextInt() != nspheres) ||
+			    (density != scanner.nextDouble()) ||
+			    (probeRadius != scanner.nextDouble())) {
+				throw new IOException("face and vertices part is not related!");
 			}
-
-		} catch (InstantiationException e) {
-			new TrimeshException("Cannot create Mesh instance for reading data", e);
-		} catch (IllegalAccessException e) {
-			new TrimeshException("Cannot create Mesh instance for reading data", e);
+			
+			readFaces(nfaces);
+			
+		} catch (IOException e) {
+			throw new TrimeshException("Error reading input for surface", e);
 		}
+
 		
 		return (M) mesh;
 	}
 
-	private void skipComments() throws IOException {
+	private String readWithoutComments() throws IOException {
+		String line;
 		do {
 			line = input.readLine();
 		} while (line.charAt(0) == '#');
+		
+		return line;
 	}
 
+	/**
+	 * Reads the faces from the file
+	 * <p>
+	 * The faces are stored with the 
+	 * <ul>
+	 * <li>indices from the three corners of each triangle</li>
+	 * <li>1 for a triangle in a toric reentrant surface, 2 for a triangle in a spheric
+	 * reentrant surface, 3 for a triangle in a contact face (ignored)</li>
+	 * <li>Number of the face in the analytical surface (ignored)</li>
+	 * 
+	 * @param nfaces
+	 * @throws IOException
+	 * @throws TrianglePointMissing
+	 */
 	private void readFaces(int nfaces) throws IOException, TrianglePointMissing {
 		for(int i= 0; i<nfaces;i++) {
 			int a,b,c;
 			
-			line = input.readLine();
+			String line = readWithoutComments();
 			a = new Integer(line.substring( 0, 6).trim()).intValue() - 1;
 			b = new Integer(line.substring( 7,13).trim()).intValue() - 1;
 			c = new Integer(line.substring(14,20).trim()).intValue() - 1;
@@ -148,6 +168,26 @@ public class MSMSReader extends SimpleSurfaceReader {
 			mesh.addTriangle(a, b, c);
 		}		
 	}
+	/**
+	 * Reads the vertex lines to get the point coordinates and the normale vector
+	 * <p>
+	 * The MSMS file format for vectors contains the following line for each 
+	 * vertex:<p>
+	 * <p>
+	 * <code>%9.3f %9.3f %9.3f %9.3f %9.3f %9.3f %7d %7d %2d %s'</code><br/>
+	 * Where the
+	 * <ul>
+	 * <li>first three values are the coordinates of the point,</li>
+	 * <li>the second three values represent the surface normal for that point</li>
+	 * <li>followed by the index of the analytical surface (ignored)</li>
+	 * <li>followed by the 1-based index of the closest sphere (ignored)</li>
+	 * <li>followed by a fag if the vertex inside a toric reentrant faces (1), 
+	 * lies inside reentrant faces (2) and inside contact faces (3) - (ignored)</li>
+	 * </ul> 
+	 * @param nvertices
+	 * @throws IOException
+	 * @throws FailedPointAddition
+	 */
 
 	private void readVertices(int nvertices) throws IOException,
 			FailedPointAddition {
@@ -158,7 +198,7 @@ public class MSMSReader extends SimpleSurfaceReader {
 			//    ixSphere,
 			//    facetype;
 			
-			line = input.readLine();
+			String line = readWithoutComments();
 			x  = new Double(line.substring( 0, 9).trim()).doubleValue();
 			y  = new Double(line.substring(10,19).trim()).doubleValue();
 			z  = new Double(line.substring(20,29).trim()).doubleValue();
@@ -170,16 +210,6 @@ public class MSMSReader extends SimpleSurfaceReader {
 					                new Vector3d(nx, ny, nz));
 			mesh.addPoint(point);
 		}
-	}
-
-	@Override
-	public boolean accepts(Class<? extends Mesh> classObject) {
-		return (Mesh.class.equals(classObject)); 
-	}
-
-	@Override
-	public IResourceFormat getFormat() {
-		return MSMSFormat.getInstance();
 	}
 
 }

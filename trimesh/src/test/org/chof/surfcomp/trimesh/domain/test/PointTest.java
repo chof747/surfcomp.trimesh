@@ -2,6 +2,8 @@ package org.chof.surfcomp.trimesh.domain.test;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -41,6 +43,35 @@ public class PointTest {
 	public void testNullNormale() {
 		Point p = new Point();
 		p.setNormale(null);
+	}
+	
+	@Test
+	public void testPointProperties() {
+		Point p = new Point();
+		p.setProperty("curvature", 0.5);
+		p.setProperty("potential", -0.12);
+		p.setProperty("name", "peter");
+		
+		double val = p.getProperty("curvature");
+		assertEquals(0.5, val, 1e-1);
+		assertEquals("peter", p.getProperty("name", String.class));
+		
+		p.removeProperty("potential");
+		assertNull(p.getProperty("potential"));
+		
+	    HashMap<Object, Object> otherProps = new HashMap<Object, Object>();
+	    otherProps.put(p, "what");
+	    otherProps.put("charged", true);
+	    p.setProperties(otherProps);
+	    assertEquals("what", p.getProperty(p));
+	    assertTrue(p.getProperty("charged", Boolean.class));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testPointPropertyWrongType() {
+		Point p = new Point();
+		p.setProperty("prop", true);
+		p.getProperty("prop", Double.class);
 	}
 
 	private void testPoint(double[] coordinates, double[] normale,

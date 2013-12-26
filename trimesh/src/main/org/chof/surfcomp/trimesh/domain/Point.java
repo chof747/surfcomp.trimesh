@@ -3,7 +3,7 @@ package org.chof.surfcomp.trimesh.domain;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
-public class Point {
+public class Point extends SimpleSurfaceElement {
 
 	protected Point3d coordinates;
 	protected Vector3d normale;
