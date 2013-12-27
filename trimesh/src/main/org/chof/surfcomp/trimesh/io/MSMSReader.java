@@ -14,6 +14,7 @@ import javax.vecmath.Vector3d;
 
 import org.chof.surfcomp.trimesh.domain.Mesh;
 import org.chof.surfcomp.trimesh.domain.Point;
+import org.chof.surfcomp.trimesh.domain.Triangle;
 import org.chof.surfcomp.trimesh.exception.FailedPointAddition;
 import org.chof.surfcomp.trimesh.exception.TrianglePointMissing;
 import org.chof.surfcomp.trimesh.exception.TrimeshException;
@@ -159,13 +160,21 @@ public class MSMSReader extends SimpleSurfaceReader {
 	private void readFaces(int nfaces) throws IOException, TrianglePointMissing {
 		for(int i= 0; i<nfaces;i++) {
 			int a,b,c;
+			int faceType;
+			int faceNumber;
 			
 			String line = readWithoutComments();
 			a = new Integer(line.substring( 0, 6).trim()).intValue() - 1;
 			b = new Integer(line.substring( 7,13).trim()).intValue() - 1;
 			c = new Integer(line.substring(14,20).trim()).intValue() - 1;
 			
+			faceType = new Integer(line.substring(21, 23).trim()).intValue();
+			faceNumber = new Integer(line.substring(24, 30).trim()).intValue();
+			
 			mesh.addTriangle(a, b, c);
+			Triangle t = mesh.getTriangle(i);
+			t.setProperty("faceType", faceType);
+			t.setProperty("faceNumber", faceNumber);
 		}		
 	}
 	/**
@@ -179,10 +188,11 @@ public class MSMSReader extends SimpleSurfaceReader {
 	 * <ul>
 	 * <li>first three values are the coordinates of the point,</li>
 	 * <li>the second three values represent the surface normal for that point</li>
-	 * <li>followed by the index of the analytical surface (ignored)</li>
-	 * <li>followed by the 1-based index of the closest sphere (ignored)</li>
+	 * <li>followed by the index of the analytical surface (stored as Property faceNumber)</li>
+	 * <li>followed by the 1-based index of the closest sphere (stored as Property sphereIndex)</li>
 	 * <li>followed by a fag if the vertex inside a toric reentrant faces (1), 
-	 * lies inside reentrant faces (2) and inside contact faces (3) - (ignored)</li>
+	 * lies inside reentrant faces (2) and inside contact faces (3) - (stored as Property faceType)</li>
+	 * <li>followed by an optional name of the atom (stored as Property atomName)</li>
 	 * </ul> 
 	 * @param nvertices
 	 * @throws IOException
@@ -194,9 +204,10 @@ public class MSMSReader extends SimpleSurfaceReader {
 		for(int i= 0; i<nvertices;i++) {
 			double x,y,z,
 			       nx,ny,nz;
-			//int facenum,
-			//    ixSphere,
-			//    facetype;
+			int facenum,
+			    ixSphere,
+			    facetype;
+			String atomName;
 			
 			String line = readWithoutComments();
 			x  = new Double(line.substring( 0, 9).trim()).doubleValue();
@@ -206,8 +217,22 @@ public class MSMSReader extends SimpleSurfaceReader {
 			ny = new Double(line.substring(40,49).trim()).doubleValue();
 			nz = new Double(line.substring(50,59).trim()).doubleValue();
 			
+			facenum  = new Integer(line.substring(60, 67).trim()).intValue();
+			ixSphere = new Integer(line.substring(68, 75).trim()).intValue();
+			facetype = new Integer(line.substring(76, 79).trim()).intValue();
+			
 			Point point = new Point(new Point3d(x,y,z),
-					                new Vector3d(nx, ny, nz));
+	                new Vector3d(nx, ny, nz));
+
+			if (line.length()>79) {
+				atomName = line.substring(79, line.length()-1).trim();
+				point.setProperty("atomName", atomName);
+			}
+			
+			point.setProperty("faceNumber", facenum);
+			point.setProperty("sphereIndex", ixSphere);
+			point.setProperty("faceType", facetype);
+			
 			mesh.addPoint(point);
 		}
 	}
