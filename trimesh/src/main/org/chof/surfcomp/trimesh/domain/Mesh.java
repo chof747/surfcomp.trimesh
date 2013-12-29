@@ -1,5 +1,6 @@
 package org.chof.surfcomp.trimesh.domain;
 
+import java.util.Set;
 import java.util.Vector;
 
 import org.chof.surfcomp.trimesh.exception.FailedPointAddition;
@@ -12,7 +13,7 @@ public class Mesh {
 	/**
 	 * TODO: Implement datastructure as a directed weighted graph
 	 * TODO: Implement Vertices as an vector of points (extra)
-	 * TODO: Implement Edges as facedes to the triangles containing the start corner and 
+	 * TODO: Implement Edges as faces to the triangles containing the start corner and 
 	 *       the triangle
 	 * TODO: 
 	 */
@@ -84,6 +85,24 @@ public class Mesh {
 		return mesh.getEdge(source, target);
 	}
 	
+	/**
+	 * Retrieves the edges going out from the point specified by the given index ix
+	 * @param ix the index of the point
+	 * @return the set of edges going out from point ix
+	 */
+	public Set<MeshEdge> getEdgesOf(int ix) {
+		return getEdgesOf(points.get(ix));
+	}
+
+	/**
+	 * Retrieves the edges going out from the given point
+	 * @param point the requested point
+	 * @return the set of edges going out from the point
+	 */
+	public Set<MeshEdge> getEdgesOf(Point point) {
+		return mesh.outgoingEdgesOf(point);
+	}
+
 	/**
 	 * Retrieves a vector containing the values of a specific property for all points
 	 * <p>

@@ -5,11 +5,13 @@ import java.util.Map.Entry;
 
 import javax.vecmath.Vector3d;
 
+import org.chof.surfcomp.trimesh.tools.TrigomFunction;
+
 /**
  * Class representation of a surface triangle
  * <p>
  * The mesh is represented as a graph and its edges are the direct connections between 
- * two adjecent points. Each edge is referenced by the starting point and the triangle
+ * two adjacent points. Each edge is referenced by the starting point and the triangle
  * residing counter-clock-wise adjacent to the edge (i.e. the edge is a mathematical side of the triangle</p>
  * 
  * @author chof
@@ -206,7 +208,7 @@ public class Triangle extends SimpleSurfaceElement {
 		    	} 
 		    } 
 		}
-		return edge;
+		return (Vector3d) edge.clone();
 	}
 
 
@@ -267,4 +269,50 @@ public class Triangle extends SimpleSurfaceElement {
 		
 		return normale;
 	}
+
+	/**
+	 * Retrieves the angle at the corner of the triangle
+	 * @param corner the triangle corner
+	 * @return the angle in radiant
+	 */
+	public double getAngle(Corner corner) {
+		double cos = getCosAngle(corner);
+		return Math.acos(cos);
+	}
+	
+	/**
+	 * Retrieves a trigonometric function of the angle at the corner
+	 * @param corner the requested corner
+	 * @param trigom the trigonometric function
+	 * @return the result of the trigonometric function of the angle at that corner
+	 */
+	public double getAngleFunction(Corner corner, TrigomFunction trigom) {
+		return trigom.calculateFromCos(getCosAngle(corner));
+	}
+	
+	/**
+	 * Retrieves the corner with an obtuse angle, if there is any. An obtuse
+	 * angle is any angle in the triangle with more than 90 degree or pi/2 radiant.
+	 * As the sum of angles in a triangle is pi or 180 degrees there can only be one
+	 * obtuse angle 
+	 * 
+	 * @return the corner of the obtuse angle, if any or null if 
+	 */
+	public Corner getObtuseAngle() {
+		return (getCosAngle(Corner.A) < 0) 
+			   ? Corner.A
+		       : (getCosAngle(Corner.B) < 0) 
+		       		? Corner.B
+		       	    : (getCosAngle(Corner.C) < 0)
+		       	    	? Corner.C
+		       	    	: null;
+	}
+
+	private double getCosAngle(Corner corner) {
+		Vector3d side_a = getEdge(corner.getPrev());
+		side_a.negate();
+		Vector3d side_b = getEdge(corner);
+		
+	    return side_a.dot(side_b) / (side_a.length() * 	side_b.length());
+	}	
 }

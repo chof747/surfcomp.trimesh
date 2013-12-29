@@ -3,9 +3,11 @@ package org.chof.surfcomp.trimesh.domain.test;
 import static org.junit.Assert.*;
 
 import javax.vecmath.Point3d;
+
 import org.chof.surfcomp.trimesh.domain.Point;
 import org.chof.surfcomp.trimesh.domain.Triangle;
 import org.chof.surfcomp.trimesh.domain.Triangle.Corner;
+import org.chof.surfcomp.trimesh.tools.TrigomFunction;
 import org.junit.Test;
 
 public class TriangleTest {
@@ -115,6 +117,28 @@ public class TriangleTest {
 		assertEquals(Corner.A, t.getCornerByPoint(a));
 		assertEquals(Corner.B, t.getCornerByPoint(b));
 		assertEquals(Corner.C, t.getCornerByPoint(c));
+		
+	}
+	
+	@Test
+	public void testAngle() {
+		Point a = new Point(new Point3d(1.0,0.0,0.0)); 
+		Point b = new Point(new Point3d(0.0,1.0,0.0)); 
+		Point c = new Point(new Point3d(0,0.3,1));
+		Triangle t = new Triangle(a, b, c);
+		assertEquals(0.635850784, t.getAngleFunction(Corner.A, TrigomFunction.COS), 1e-9);
+		assertEquals(0.881685986, t.getAngle(Corner.A), 1e-9);		
+	}
+	
+	@Test 
+	public void testObtuseAngle() {
+		Point a = new Point(new Point3d(0,0,0));
+		Point b = new Point(new Point3d(10,0,0));
+		Point c = new Point(new Point3d(20,1,1));
+		
+		Triangle t = new Triangle(a,b,c);
+		assertEquals(Corner.B, t.getObtuseAngle());
+		
 		
 	}
 }
