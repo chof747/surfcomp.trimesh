@@ -1,8 +1,11 @@
 package org.chof.surfcomp.trimesh.domain;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
 
+import org.chof.surfcomp.trimesh.algorithms.LimitedDepthFirstIterator;
 import org.chof.surfcomp.trimesh.exception.FailedPointAddition;
 import org.chof.surfcomp.trimesh.exception.TrianglePointMissing;
 import org.chof.surfcomp.trimesh.interfaces.IPropertyContainer;
@@ -58,6 +61,14 @@ public class Mesh {
 		return triangles.get(index);
 	}
 	
+	public Collection<Point> getPoints() {
+		return points;
+	}
+
+	public Collection<Triangle> getTriangles() {
+		return triangles;
+	}
+
 	/**
 	 * Retrieves an edge between two points by index of the points
 	 * @param start the index of the source point
@@ -101,6 +112,22 @@ public class Mesh {
 	 */
 	public Set<MeshEdge> getEdgesOf(Point point) {
 		return mesh.outgoingEdgesOf(point);
+	}
+	
+	/**
+	 * Retrieves all neighbors of the given point
+	 * @param point the point requested
+	 * @return a set of points which together form the neighborhood of the 
+	 * point on the mesh
+	 */
+	public Set<Point> getNeighbors(Point point) {
+		Set<Point> result = new HashSet<Point>();
+
+		Set<MeshEdge> edges = getEdgesOf(point);
+		for(MeshEdge e : edges) {
+			result.add(e.getEndPoint());
+		}
+		return result;
 	}
 
 	/**
@@ -166,6 +193,10 @@ public class Mesh {
 	// Manipulation methods
 	//**************************************************************************
 
+	public Object sizeEdges() {
+		return mesh.edgeSet().size();
+	}
+
 	public int addPoint(Point point) throws FailedPointAddition {
 		if ((points.add(point)) && (mesh.addVertex(point))) {
 			return points.size() - 1;
@@ -222,5 +253,17 @@ public class Mesh {
 		}
 		
 		return !noEdge;
+	}
+
+	/**
+	 * Provides a limited depth first iterator starting from the provided point
+	 * and ending at the given cutoff range
+	 * @param startPoint the requested start point
+	 * @param cutoff the given cutoff range
+	 * @return a new limited depth first iterator
+	 */
+	public LimitedDepthFirstIterator<Point, MeshEdge> getLimitedDepthFirstIterator(
+			Point startPoint, double cutoff) {
+		return new LimitedDepthFirstIterator<Point, MeshEdge>(mesh, startPoint, cutoff);
 	}
 }

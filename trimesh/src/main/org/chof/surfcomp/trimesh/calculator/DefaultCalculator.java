@@ -29,7 +29,7 @@ public abstract class DefaultCalculator implements ICalculator {
 				"Denotes if a calculated value should be stored as a property", 
 				true);
 		parameterDefinitions.put(storeProperty.getDefinition(), storeProperty);
-		parameters.put(storeProperty, storeProperty);
+		parameters.put(storeProperty, storeProperty.getDefaultValue());
 	}
 	
 	/**

@@ -2,6 +2,7 @@ package org.chof.surfcomp.trimesh.domain.test;
 
 import static org.junit.Assert.*;
 
+import java.util.Set;
 import java.util.Vector;
 
 import javax.vecmath.Point3d;
@@ -58,10 +59,10 @@ public class MeshTest {
 				makePoint(0,0,1)
 		};
 		
+		Mesh mesh = new Mesh();
+		
 		Double[] values = { 3.1415, 2.1789, -1.9981, 0.4294 };
 		Double[] actual = new Double[4];
-		
-		Mesh mesh = new Mesh();
 		
 		int ix = -2;
 		for(Point p : points) {
@@ -94,11 +95,45 @@ public class MeshTest {
 		assertArrayEquals(expected, actuals);
 		
 	}
+	
+	@Test
+	public void testNeighborhood() throws FailedPointAddition, TrianglePointMissing {
+		Mesh mesh = makeTestMesh();
+		Set<Point> neighbors = mesh.getNeighbors(mesh.getPoint(0));
+		assertTrue(neighbors.contains(mesh.getPoint(1)));
+		assertTrue(neighbors.contains(mesh.getPoint(2)));
+		assertTrue(neighbors.contains(mesh.getPoint(3)));
+		assertFalse(neighbors.contains(mesh.getPoint(4)));
+	}
 
 	private Point makePoint(double x, double y, double z) {
 		Point p = new Point();
 		p.setCoordinates(new Point3d(x, y, z));
 		return p;
+	}
+	
+	private Mesh makeTestMesh() throws FailedPointAddition, TrianglePointMissing {
+		Point[] points = {
+				makePoint(0.0,0.0,0.0),
+				makePoint(1,0,0),
+				makePoint(0,1,0),
+				makePoint(0,0,1),
+				makePoint(0,1,1)
+		};
+		
+		Mesh mesh = new Mesh();
+		
+		for(Point p : points) {
+			mesh.addPoint(p);
+		}
+		
+		mesh.addTriangle(0, 2, 1);		
+		mesh.addTriangle(0, 3, 2);
+		mesh.addTriangle(0, 1, 3);
+		mesh.addTriangle(2, 3, 4);
+		
+		
+		return mesh;
 	}
 
 }

@@ -24,7 +24,7 @@ public interface IPropertyContainer  {
 	 * @see                 #getProperty
 	 */
 	public void removeProperty(Object description);
-
+	
 	/**
 	 * Returns a property - the object is automatically
      * cast to the required type. This does however mean if the wrong type is
@@ -41,7 +41,6 @@ public interface IPropertyContainer  {
 	 * @see                 #removeProperty
 	 */
 	public <T> T getProperty(Object description);
-
 
     /**
      * Access a property of the given description and cast the specified class.
