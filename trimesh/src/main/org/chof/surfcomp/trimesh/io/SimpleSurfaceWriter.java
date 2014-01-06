@@ -7,10 +7,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashMap;
 
-import org.chof.surfcomp.trimesh.exception.TrimeshException;
-import org.chof.surfcomp.trimesh.domain.Mesh;
 import org.chof.surfcomp.trimesh.domain.Point;
 import org.chof.surfcomp.trimesh.domain.Triangle;
+import org.chof.surfcomp.trimesh.exception.TrimeshException;
 
 public abstract class SimpleSurfaceWriter extends DefaultSurfaceWriter {
 

@@ -1,7 +1,5 @@
 package org.chof.surfcomp.trimesh.calculator;
 
-import java.io.ObjectInputStream.GetField;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 

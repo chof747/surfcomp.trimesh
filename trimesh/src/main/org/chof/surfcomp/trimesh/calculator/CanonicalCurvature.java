@@ -3,7 +3,6 @@ package org.chof.surfcomp.trimesh.calculator;
 import java.util.Set;
 import java.util.Vector;
 
-import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 import org.chof.surfcomp.trimesh.algorithms.LimitedDepthFirstIterator;
@@ -13,12 +12,7 @@ import org.chof.surfcomp.trimesh.domain.Point;
 import org.chof.surfcomp.trimesh.tools.LUSolve;
 import org.chof.surfcomp.trimesh.tools.ParameterDefinition;
 import org.jblas.Decompose;
-import org.jblas.Decompose.LUDecomposition;
 import org.jblas.DoubleMatrix;
-import org.jblas.Eigen;
-import org.jblas.Solve;
-import org.jgrapht.traverse.BreadthFirstIterator;
-import org.jgrapht.traverse.DepthFirstIterator;
 
 /**
  * A curvature calculator

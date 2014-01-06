@@ -5,7 +5,6 @@ import java.util.Vector;
 
 import org.chof.surfcomp.trimesh.domain.Mesh;
 import org.chof.surfcomp.trimesh.domain.MeshEdge;
-import org.hamcrest.core.IsInstanceOf;
 
 /**
  * Calculates the gaussian curvature of a point on the surface
