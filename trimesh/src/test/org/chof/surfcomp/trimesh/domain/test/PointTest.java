@@ -25,13 +25,13 @@ public class PointTest {
 		 
 		 coordinates[1] = 0.5;
 		 point = new Point(new Point3d(coordinates));
-		 testPoint(coordinates, normale, point);
+		 assertPoint(coordinates, normale, point);
 		 
 		 coordinates[2] = 0.5;
 		 normale[1] = 1;
 		 normale[2] = 0;
 		 point = new Point(new Point3d(coordinates), new Vector3d(normale));
-		 testPoint(coordinates, normale, point);
+		 assertPoint(coordinates, normale, point);
 		 
 	}
 	
@@ -75,8 +75,27 @@ public class PointTest {
 		p.setProperty("prop", true);
 		p.getProperty("prop", Double.class);
 	}
+	
+	@Test
+	public void testCopyConstructor() {
+		double[] coordinates = new double[] { 1.4, 2.3, -1.2 };
+		double[] normale = new double[] { 0.2, 0.4, -0.1 };
 
-	private void testPoint(double[] coordinates, double[] normale,
+		Point p = new Point();
+		p.setCoordinates(new Point3d(coordinates));
+		p.setNormale(new Vector3d(normale));
+		p.setProperty("prop1", 3.2);
+		p.setProperty("prop2", "TestProp");
+		
+		Point q = new Point(p);
+		p.setCoordinates(new Point3d(new double[] { 0, 0, 0}));
+		
+		assertPoint(coordinates, normale, q);
+		assertEquals(q.getProperty("prop1", Double.class), 3.2, DomainTests.doubleDelta);
+		assertEquals(q.getProperty("prop2", String.class),"TestProp"); 
+	}
+
+	private void assertPoint(double[] coordinates, double[] normale,
 			Point point) {
 		double[] triple = new double[3];
 

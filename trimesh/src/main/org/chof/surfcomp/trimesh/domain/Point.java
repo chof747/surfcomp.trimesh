@@ -39,6 +39,16 @@ public class Point extends SimpleSurfaceElement {
 		setCoordinates(coordinates);
 		setNormale(normale);
 	}
+	
+	/**
+	 * copy constructor duplicating the information of the source to a new point
+	 * @param source a source point
+	 */
+	public Point(Point source) {
+		super(source);
+		this.coordinates = new Point3d(source.coordinates);
+		this.normale = new Vector3d(source.normale);
+	}
 
 	/**
 	 * @return the coordinates of the surface point

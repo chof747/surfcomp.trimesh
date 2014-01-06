@@ -1,10 +1,12 @@
 package org.chof.surfcomp.trimesh.domain;
 
 import java.util.EnumMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.vecmath.Vector3d;
 
+import org.chof.surfcomp.trimesh.exception.TrianglePointMissing;
 import org.chof.surfcomp.trimesh.tools.TrigomFunction;
 
 /**
@@ -98,6 +100,52 @@ public class Triangle extends SimpleSurfaceElement {
 		
 		initialize();
 		setCorners(a, b, c);
+	}
+	
+	/**
+	 * Copy Constructor taking all information from one triangle to setup a new triangle
+	 * with the given point mapping
+	 * <p>
+	 * The constructor also considers, that for a new triangle also the points have to be 
+	 * copied and new points - which correspond to the original points via a 1:1 mapping -
+	 * need to be used as corners of the new triangle.</p>
+	 * <p>
+	 * <b>Note:</p> It is assumed, that the positions of the new points in space are equal
+	 * to the positions of the old points, thus any calculated edge and area are also 
+	 * copied</p>
+	 * 
+	 * @param source the source triangle
+	 * @param pointMap the mapping from old to new points
+	 * @throws TrianglePointMissing if one of the source triangle points is not 
+	 *         present in the point map
+	 */
+	public Triangle(Triangle source, Map<Point, Point> pointMap) throws TrianglePointMissing {
+		super(source);
+		
+		Point a = pointMap.get(source.corners.get(Corner.A));
+		Point b = pointMap.get(source.corners.get(Corner.B));
+		Point c = pointMap.get(source.corners.get(Corner.C));
+		
+		if ((a!=null) && (b!=null) && (c!=null)) {
+			initialize();
+			setCorners(a, b, c);
+			
+			this.area = source.area;
+			if (source.normale != null) {
+				normale = new Vector3d(source.normale);
+			}
+			
+			for(Corner x : Corner.values()) {
+				Vector3d edge = source.edges.get(x);
+				if (edge != null) {
+					edges.put(x, new Vector3d(edge));
+				}
+			}
+			
+		} else {
+			throw new TrianglePointMissing("One or more of the source triangle points are missing in the point map", 
+					a == null, b == null, c == null);
+		}
 	}
 	
 	private void initialize() {

@@ -2,11 +2,15 @@ package org.chof.surfcomp.trimesh.domain.test;
 
 import static org.junit.Assert.*;
 
+import java.util.HashMap;
+
 import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
 
 import org.chof.surfcomp.trimesh.domain.Point;
 import org.chof.surfcomp.trimesh.domain.Triangle;
 import org.chof.surfcomp.trimesh.domain.Triangle.Corner;
+import org.chof.surfcomp.trimesh.exception.TrianglePointMissing;
 import org.chof.surfcomp.trimesh.tools.TrigomFunction;
 import org.junit.Test;
 
@@ -140,5 +144,43 @@ public class TriangleTest {
 		assertEquals(Corner.B, t.getObtuseAngle());
 		
 		
+	}
+	
+	@Test 
+	public void testCopyConstructor() throws TrianglePointMissing {
+		Point a = new Point(new Point3d(0,0,0));
+		Point b = new Point(new Point3d(10,0,0));
+		Point c = new Point(new Point3d(20,1,1));
+		
+		Triangle t = new Triangle(a,b,c);
+		t.setProperty("prop1", "sun");
+
+		HashMap<Point, Point> pointMap = new HashMap<Point, Point>();
+		Point q = new Point(a); pointMap.put(a, q);
+		Point r = new Point(b); pointMap.put(b, r);
+		Point s = new Point(c); pointMap.put(c, s);
+		
+		Vector3d edge = t.getEdge(Corner.B);
+		
+		Triangle u = new Triangle(t, pointMap);
+
+		for(Corner x : Corner.values()) {
+			assertPointEquals(t.getCorner(x), u.getCorner(x));
+			assertNotEquals(t.getCorner(x), u.getCorner(x));
+		}
+		
+		assertEquals(edge, u.getEdge(Corner.B));
+		assertEquals("sun", u.getProperty("prop1"));
+	}
+
+	private void assertPointEquals(Point expected, Point actual) {
+		
+		Point3d ep = expected.getCoordinates();
+		Vector3d en = expected.getNormale();
+		Point3d ap = actual.getCoordinates();
+		Vector3d an = actual.getNormale();
+		
+		assertEquals(ep, ap);
+		assertEquals(en, an);
 	}
 }

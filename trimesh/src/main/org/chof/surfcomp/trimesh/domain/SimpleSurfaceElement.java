@@ -8,6 +8,22 @@ import org.chof.surfcomp.trimesh.interfaces.IPropertyContainer;
 public abstract class SimpleSurfaceElement implements IPropertyContainer {
 	
 	protected HashMap<Object, Object> propertyMap = null;
+	
+	/**
+	 * Default constructor
+	 */
+	public SimpleSurfaceElement() {
+		super();
+	}
+
+	/**
+	 * Copy constructor duplicating all properties from the source to this
+	 * object
+	 * @param source the source simple surface element
+	 */
+	public SimpleSurfaceElement(SimpleSurfaceElement source) {
+		lazyProperties().putAll(source.getProperties());
+	}
 
 	@Override
 	public void setProperty(Object description, Object property) {
